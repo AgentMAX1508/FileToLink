@@ -1,13 +1,24 @@
-FROM python:3.10-slim-bullseye
+FROM python:3.10-slim-bookworm
 
-RUN apt update && apt upgrade -y && \
-    apt install -y git --no-install-recommends && \
+# Install system dependencies
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+    git \
+    ffmpeg \
+    curl \
+    python3-pip && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Set working directory
 WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
+# Install Python requirements
+COPY requirements.txt .
+RUN pip3 install --no-cache-dir -U -r requirements.txt
+
+# Copy the rest of the application
 COPY . .
 
-CMD ["python", "main.py"]
+# Start the bot
+CMD ["python3", "main.py"]
